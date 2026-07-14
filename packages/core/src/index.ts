@@ -1,5 +1,11 @@
 export * from './types.js';
 export { renderMarkdown, type RenderResult } from './markdown/render.js';
+export { titleFromMarkdown } from './markdown/title.js';
 export { sanitizeSchema } from './markdown/sanitize-schema.js';
 export { THEME_CSS, THEME_TOKENS_CSS, DOC_CSS, THEMES } from './export/themes.js';
 export { renderStandaloneHtml, escapeHtml, type StandaloneHtmlOptions } from './export/html-template.js';
+export { openDatabase, type Database } from './db/database.js';
+export { DirectoryRepo, DocumentRepo, SettingsRepo, TagRepo } from './db/repositories.js';
+export { ArchiveStore } from './storage/archive.js';
+export { syncArchive, type SyncResult } from './storage/sync.js';
+export { DocStore, type DocStoreOptions } from './store.js';
