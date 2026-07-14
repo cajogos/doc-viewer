@@ -41,7 +41,7 @@ export function registerDirectoryRoutes(app: FastifyInstance, store: DocStore): 
 {
   app.post<{ Body: CreateBody }>(
     '/api/directories',
-    { schema: { body: createBodySchema } },
+    { schema: { body: createBodySchema }, preHandler: app.requireAuth },
     async (request, reply) =>
     {
       const parentId = request.body.parentId ?? null;
@@ -56,7 +56,7 @@ export function registerDirectoryRoutes(app: FastifyInstance, store: DocStore): 
 
   app.patch<{ Params: DirectoryParams; Body: PatchBody }>(
     '/api/directories/:id',
-    { schema: { body: patchBodySchema } },
+    { schema: { body: patchBodySchema }, preHandler: app.requireAuth },
     async (request, reply) =>
     {
       const { id } = request.params;
@@ -82,13 +82,17 @@ export function registerDirectoryRoutes(app: FastifyInstance, store: DocStore): 
     }
   );
 
-  app.delete<{ Params: DirectoryParams }>('/api/directories/:id', async (request, reply) =>
-  {
-    if (!store.directories.get(request.params.id))
+  app.delete<{ Params: DirectoryParams }>(
+    '/api/directories/:id',
+    { preHandler: app.requireAuth },
+    async (request, reply) =>
     {
-      return reply.status(404).send({ error: 'Directory not found' });
+      if (!store.directories.get(request.params.id))
+      {
+        return reply.status(404).send({ error: 'Directory not found' });
+      }
+      store.deleteDirectory(request.params.id);
+      return reply.status(204).send();
     }
-    store.deleteDirectory(request.params.id);
-    return reply.status(204).send();
-  });
+  );
 }

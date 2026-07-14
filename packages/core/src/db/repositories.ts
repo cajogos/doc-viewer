@@ -337,6 +337,59 @@ export class TagRepo
   }
 }
 
+export interface User
+{
+  id: string;
+  username: string;
+  passwordHash: string;
+  createdAt: string;
+}
+
+interface UserRow
+{
+  id: string;
+  username: string;
+  password_hash: string;
+  created_at: string;
+}
+
+function toUser(row: UserRow): User
+{
+  return {
+    id: row.id,
+    username: row.username,
+    passwordHash: row.password_hash,
+    createdAt: row.created_at
+  };
+}
+
+export class UserRepo
+{
+  constructor(private readonly db: Database) {}
+
+  create(username: string, passwordHash: string): User
+  {
+    const id = randomUUID();
+    this.db
+      .prepare('INSERT INTO users (id, username, password_hash) VALUES (?, ?, ?)')
+      .run(id, username, passwordHash);
+    return this.getByUsername(username)!;
+  }
+
+  getByUsername(username: string): User | null
+  {
+    const row = this.db
+      .prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE')
+      .get(username) as UserRow | undefined;
+    return row ? toUser(row) : null;
+  }
+
+  updatePassword(id: string, passwordHash: string): void
+  {
+    this.db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(passwordHash, id);
+  }
+}
+
 export class SettingsRepo
 {
   constructor(private readonly db: Database) {}

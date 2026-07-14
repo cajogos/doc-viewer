@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@doc-viewer/core": "workspace:*",
+    "@fastify/cookie": "^11.1.1",
     "@fastify/multipart": "^10.1.0",
     "@fastify/static": "^10.1.0",
     "fastify": "^5.10.0"

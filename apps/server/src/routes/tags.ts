@@ -45,7 +45,7 @@ export function registerTagRoutes(app: FastifyInstance, store: DocStore): void
 
   app.post<{ Body: CreateBody }>(
     '/api/tags',
-    { schema: { body: createBodySchema } },
+    { schema: { body: createBodySchema }, preHandler: app.requireAuth },
     async (request, reply) =>
     {
       const tag = store.tags.create(request.body.name, request.body.color);
@@ -55,7 +55,7 @@ export function registerTagRoutes(app: FastifyInstance, store: DocStore): void
 
   app.patch<{ Params: TagParams; Body: PatchBody }>(
     '/api/tags/:id',
-    { schema: { body: patchBodySchema } },
+    { schema: { body: patchBodySchema }, preHandler: app.requireAuth },
     async (request, reply) =>
     {
       if (!store.tags.get(request.params.id))
@@ -67,13 +67,17 @@ export function registerTagRoutes(app: FastifyInstance, store: DocStore): void
     }
   );
 
-  app.delete<{ Params: TagParams }>('/api/tags/:id', async (request, reply) =>
-  {
-    if (!store.tags.get(request.params.id))
+  app.delete<{ Params: TagParams }>(
+    '/api/tags/:id',
+    { preHandler: app.requireAuth },
+    async (request, reply) =>
     {
-      return reply.status(404).send({ error: 'Tag not found' });
+      if (!store.tags.get(request.params.id))
+      {
+        return reply.status(404).send({ error: 'Tag not found' });
+      }
+      store.tags.delete(request.params.id);
+      return reply.status(204).send();
     }
-    store.tags.delete(request.params.id);
-    return reply.status(204).send();
-  });
+  );
 }

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from './client.js';
 import type {
+  AuthState,
   Directory,
   DocumentWithTags,
   Settings,
@@ -8,6 +9,39 @@ import type {
   Tag,
   TreeNode
 } from './types.js';
+
+export function useAuth()
+{
+  return useQuery({
+    queryKey: ['auth'],
+    queryFn: () => api.get<AuthState>('/api/auth/me')
+  });
+}
+
+export function useLogin()
+{
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { username: string; password: string }) =>
+      api.post<{ user: { username: string } }>('/api/auth/login', input),
+    onSuccess: () =>
+    {
+      void client.invalidateQueries();
+    }
+  });
+}
+
+export function useLogout()
+{
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.post<AuthState>('/api/auth/logout', {}),
+    onSuccess: () =>
+    {
+      void client.invalidateQueries();
+    }
+  });
+}
 
 export function useTree()
 {

@@ -39,30 +39,34 @@ const patchBodySchema = {
 
 export function registerDocumentRoutes(app: FastifyInstance, store: DocStore): void
 {
-  app.post<{ Querystring: UploadQuery }>('/api/documents', async (request, reply) =>
-  {
-    const directoryId = request.query.directoryId ?? null;
-    if (directoryId !== null && !store.directories.get(directoryId))
+  app.post<{ Querystring: UploadQuery }>(
+    '/api/documents',
+    { preHandler: app.requireAuth },
+    async (request, reply) =>
     {
-      return reply.status(404).send({ error: `Directory not found: ${directoryId}` });
-    }
-
-    const created: DocumentWithTags[] = [];
-    for await (const part of request.files())
-    {
-      if (!part.filename.toLowerCase().endsWith('.md'))
+      const directoryId = request.query.directoryId ?? null;
+      if (directoryId !== null && !store.directories.get(directoryId))
       {
-        return reply.status(400).send({ error: `Only .md files are supported: ${part.filename}` });
+        return reply.status(404).send({ error: `Directory not found: ${directoryId}` });
       }
-      const content = (await part.toBuffer()).toString('utf8');
-      created.push(store.uploadDocument({ filename: part.filename, content, directoryId }));
+
+      const created: DocumentWithTags[] = [];
+      for await (const part of request.files())
+      {
+        if (!part.filename.toLowerCase().endsWith('.md'))
+        {
+          return reply.status(400).send({ error: `Only .md files are supported: ${part.filename}` });
+        }
+        const content = (await part.toBuffer()).toString('utf8');
+        created.push(store.uploadDocument({ filename: part.filename, content, directoryId }));
+      }
+      if (created.length === 0)
+      {
+        return reply.status(400).send({ error: 'No files uploaded' });
+      }
+      return reply.status(201).send({ documents: created });
     }
-    if (created.length === 0)
-    {
-      return reply.status(400).send({ error: 'No files uploaded' });
-    }
-    return reply.status(201).send({ documents: created });
-  });
+  );
 
   app.get<{ Params: DocumentParams; Querystring: GetQuery }>(
     '/api/documents/:id',
@@ -101,7 +105,7 @@ export function registerDocumentRoutes(app: FastifyInstance, store: DocStore): v
 
   app.patch<{ Params: DocumentParams; Body: PatchBody }>(
     '/api/documents/:id',
-    { schema: { body: patchBodySchema } },
+    { schema: { body: patchBodySchema }, preHandler: app.requireAuth },
     async (request, reply) =>
     {
       const { id } = request.params;
@@ -138,13 +142,17 @@ export function registerDocumentRoutes(app: FastifyInstance, store: DocStore): v
     }
   );
 
-  app.delete<{ Params: DocumentParams }>('/api/documents/:id', async (request, reply) =>
-  {
-    if (!store.documents.get(request.params.id))
+  app.delete<{ Params: DocumentParams }>(
+    '/api/documents/:id',
+    { preHandler: app.requireAuth },
+    async (request, reply) =>
     {
-      return reply.status(404).send({ error: 'Document not found' });
+      if (!store.documents.get(request.params.id))
+      {
+        return reply.status(404).send({ error: 'Document not found' });
+      }
+      store.deleteDocument(request.params.id);
+      return reply.status(204).send();
     }
-    store.deleteDocument(request.params.id);
-    return reply.status(204).send();
-  });
+  );
 }

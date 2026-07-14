@@ -952,6 +952,82 @@ li[data-missing='true'] .tree-label
   gap: 6px;
 }
 
+/* Dialogs --------------------------------------------------------------------- */
+
+.dialog-backdrop
+{
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: color-mix(in srgb, var(--dv-bg) 55%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.dialog
+{
+  width: min(360px, calc(100vw - 32px));
+  padding: 20px 22px;
+  background-color: var(--dv-bg);
+  border: 1px solid var(--dv-border);
+  border-radius: 12px;
+  box-shadow: var(--dv-shadow);
+}
+
+.dialog-title
+{
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.dialog-form
+{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dialog-field
+{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--dv-fg-muted);
+}
+
+.dialog-actions
+{
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.toolbar-button.primary
+{
+  background-color: var(--dv-accent);
+  border-color: var(--dv-accent);
+  color: var(--dv-accent-fg);
+}
+
+.toolbar-button.primary:hover:not(:disabled)
+{
+  filter: brightness(1.1);
+}
+
+.sidebar-auth-button
+{
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
 /* Accessibility ------------------------------------------------------------- */
 
 :focus-visible

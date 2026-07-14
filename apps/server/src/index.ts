@@ -1,4 +1,5 @@
-import { dirname, resolve } from 'node:path';
+import { writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildApp } from './app.js';
 
@@ -13,9 +14,22 @@ const webDistDir = process.env.WEB_DIST ?? resolve(here, '../../web/dist');
 const app = buildApp({
   archiveDir,
   dbPath: resolve(dataDir, 'doc-viewer.db'),
+  dataDir,
+  adminPassword: process.env.DOC_VIEWER_ADMIN_PASSWORD || undefined,
   webDistDir,
   logger: true
 });
+
+if (app.bootstrapResult.generatedPassword)
+{
+  const passwordPath = join(dataDir, 'password.txt');
+  writeFileSync(
+    passwordPath,
+    `username: admin\npassword: ${app.bootstrapResult.generatedPassword}\n`,
+    { encoding: 'utf8', mode: 0o600 }
+  );
+  app.log.info(`Admin password generated; written once to ${passwordPath}`);
+}
 
 try
 {

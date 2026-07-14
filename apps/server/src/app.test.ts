@@ -11,19 +11,30 @@ interface UploadResult
   documents: Array<{ id: string; filename: string; relPath: string; title: string }>;
 }
 
+const PASSWORD = 'app-test-password';
+
 describe('server API', () =>
 {
   let root: string;
   let app: FastifyInstance;
+  let cookies: { dv_session: string };
 
   beforeEach(async () =>
   {
     root = mkdtempSync(join(tmpdir(), 'doc-viewer-server-'));
     app = buildApp({
       archiveDir: join(root, 'archive'),
-      dbPath: ':memory:'
+      dbPath: ':memory:',
+      dataDir: join(root, 'data'),
+      adminPassword: PASSWORD
     });
     await app.ready();
+    const login = await app.inject({
+      method: 'POST',
+      url: '/api/auth/login',
+      payload: { username: 'admin', password: PASSWORD }
+    });
+    cookies = { dv_session: login.cookies.find((c) => c.name === 'dv_session')!.value };
   });
 
   afterEach(async () =>
@@ -38,6 +49,7 @@ describe('server API', () =>
     form.append('file', Buffer.from(content), { filename, contentType: 'text/markdown' });
     const url = directoryId ? `/api/documents?directoryId=${directoryId}` : '/api/documents';
     const response = await app.inject({
+      cookies,
       method: 'POST',
       url,
       payload: form.getBuffer(),
@@ -49,7 +61,8 @@ describe('server API', () =>
 
   it('reports health', async () =>
   {
-    const response = await app.inject({ method: 'GET', url: '/api/health' });
+    const response = await app.inject({
+      cookies, method: 'GET', url: '/api/health' });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ status: 'ok' });
   });
@@ -59,7 +72,8 @@ describe('server API', () =>
     const { documents } = await upload('hello.md', '# Hello\n\nWorld');
     expect(documents[0].title).toBe('Hello');
 
-    const tree = await app.inject({ method: 'GET', url: '/api/tree' });
+    const tree = await app.inject({
+      cookies, method: 'GET', url: '/api/tree' });
     const body = tree.json() as { tree: Array<{ type: string }> };
     expect(body.tree).toHaveLength(1);
     expect(body.tree[0].type).toBe('document');
@@ -70,6 +84,7 @@ describe('server API', () =>
     const form = new FormData();
     form.append('file', Buffer.from('nope'), { filename: 'evil.exe' });
     const response = await app.inject({
+      cookies,
       method: 'POST',
       url: '/api/documents',
       payload: form.getBuffer(),
@@ -82,6 +97,7 @@ describe('server API', () =>
   {
     const { documents } = await upload('doc.md', '# Title\n\n**bold**');
     const response = await app.inject({
+      cookies,
       method: 'GET',
       url: `/api/documents/${documents[0].id}?include=html`
     });
@@ -94,6 +110,7 @@ describe('server API', () =>
   {
     const { documents } = await upload('doc.md', '# Raw');
     const response = await app.inject({
+      cookies,
       method: 'GET',
       url: `/api/documents/${documents[0].id}/raw`
     });
@@ -104,6 +121,7 @@ describe('server API', () =>
   it('renames, moves, and tags a document via PATCH', async () =>
   {
     const dirResponse = await app.inject({
+      cookies,
       method: 'POST',
       url: '/api/directories',
       payload: { name: 'guides' }
@@ -111,6 +129,7 @@ describe('server API', () =>
     const { directory } = dirResponse.json() as { directory: { id: string } };
 
     const tagResponse = await app.inject({
+      cookies,
       method: 'POST',
       url: '/api/tags',
       payload: { name: 'urgent', color: '#ff0000' }
@@ -119,6 +138,7 @@ describe('server API', () =>
 
     const { documents } = await upload('old.md', 'content');
     const patch = await app.inject({
+      cookies,
       method: 'PATCH',
       url: `/api/documents/${documents[0].id}`,
       payload: { filename: 'new.md', directoryId: directory.id, tagIds: [tag.id] }
@@ -134,21 +154,25 @@ describe('server API', () =>
   it('deletes documents', async () =>
   {
     const { documents } = await upload('bye.md', 'x');
-    const del = await app.inject({ method: 'DELETE', url: `/api/documents/${documents[0].id}` });
+    const del = await app.inject({
+      cookies, method: 'DELETE', url: `/api/documents/${documents[0].id}` });
     expect(del.statusCode).toBe(204);
-    const get = await app.inject({ method: 'GET', url: `/api/documents/${documents[0].id}` });
+    const get = await app.inject({
+      cookies, method: 'GET', url: `/api/documents/${documents[0].id}` });
     expect(get.statusCode).toBe(404);
   });
 
   it('returns 404 for unknown documents', async () =>
   {
-    const response = await app.inject({ method: 'GET', url: '/api/documents/nope' });
+    const response = await app.inject({
+      cookies, method: 'GET', url: '/api/documents/nope' });
     expect(response.statusCode).toBe(404);
   });
 
   it('manages directories', async () =>
   {
     const create = await app.inject({
+      cookies,
       method: 'POST',
       url: '/api/directories',
       payload: { name: 'a' }
@@ -157,20 +181,24 @@ describe('server API', () =>
     const { directory } = create.json() as { directory: { id: string } };
 
     const rename = await app.inject({
+      cookies,
       method: 'PATCH',
       url: `/api/directories/${directory.id}`,
       payload: { name: 'b' }
     });
     expect((rename.json() as { directory: { name: string } }).directory.name).toBe('b');
 
-    const del = await app.inject({ method: 'DELETE', url: `/api/directories/${directory.id}` });
+    const del = await app.inject({
+      cookies, method: 'DELETE', url: `/api/directories/${directory.id}` });
     expect(del.statusCode).toBe(204);
   });
 
   it('rejects duplicate tag names with 409', async () =>
   {
-    await app.inject({ method: 'POST', url: '/api/tags', payload: { name: 'dup', color: '#111111' } });
+    await app.inject({
+      cookies, method: 'POST', url: '/api/tags', payload: { name: 'dup', color: '#111111' } });
     const second = await app.inject({
+      cookies,
       method: 'POST',
       url: '/api/tags',
       payload: { name: 'DUP', color: '#222222' }
@@ -181,6 +209,7 @@ describe('server API', () =>
   it('validates tag colours', async () =>
   {
     const response = await app.inject({
+      cookies,
       method: 'POST',
       url: '/api/tags',
       payload: { name: 'bad', color: 'red' }
@@ -191,13 +220,15 @@ describe('server API', () =>
   it('stores settings', async () =>
   {
     const put = await app.inject({
+      cookies,
       method: 'PUT',
       url: '/api/settings',
       payload: { theme: 'dark' }
     });
     expect((put.json() as { settings: { theme: string } }).settings.theme).toBe('dark');
 
-    const get = await app.inject({ method: 'GET', url: '/api/settings' });
+    const get = await app.inject({
+      cookies, method: 'GET', url: '/api/settings' });
     expect((get.json() as { settings: { theme: string } }).settings.theme).toBe('dark');
   });
 
@@ -205,6 +236,7 @@ describe('server API', () =>
   {
     const { documents } = await upload('export-me.md', '# Exported\n\ncontent');
     const response = await app.inject({
+      cookies,
       method: 'GET',
       url: `/api/documents/${documents[0].id}/export?format=html&theme=dark`
     });
@@ -220,6 +252,7 @@ describe('server API', () =>
   {
     const { documents } = await upload('fmt.md', 'x');
     const response = await app.inject({
+      cookies,
       method: 'GET',
       url: `/api/documents/${documents[0].id}/export?format=docx`
     });
@@ -229,7 +262,8 @@ describe('server API', () =>
   it('indexes files dropped directly into the archive via sync', async () =>
   {
     writeFileSync(join(root, 'archive', 'external.md'), '# External');
-    const sync = await app.inject({ method: 'POST', url: '/api/sync' });
+    const sync = await app.inject({
+      cookies, method: 'POST', url: '/api/sync' });
     expect((sync.json() as { added: number }).added).toBe(1);
   });
 });

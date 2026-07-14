@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { openDatabase } from './database.js';
 import type { Database } from './database.js';
+import { MIGRATIONS } from './migrations.js';
 import { DirectoryRepo, DocumentRepo, SettingsRepo, TagRepo } from './repositories.js';
 
 describe('repositories', () =>
@@ -25,9 +26,9 @@ describe('repositories', () =>
     db.close();
   });
 
-  it('applies migrations exactly once', () =>
+  it('applies every migration exactly once', () =>
   {
-    expect(db.pragma('user_version', { simple: true })).toBe(1);
+    expect(db.pragma('user_version', { simple: true })).toBe(MIGRATIONS.length);
   });
 
   describe('DirectoryRepo', () =>

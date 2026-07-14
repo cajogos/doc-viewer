@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router';
 import {
+  useAuth,
   useCreateDirectory,
   useDeleteDirectory,
   useDeleteDocument,
@@ -38,6 +39,8 @@ function DirectoryRow({
   const [open, setOpen] = useState(depth === 0);
   const [renaming, setRenaming] = useState(false);
   const [creatingChild, setCreatingChild] = useState(false);
+  const auth = useAuth();
+  const canEdit = auth.data?.authenticated === true;
   const patchDirectory = usePatchDirectory();
   const deleteDirectory = useDeleteDirectory();
   const createDirectory = useCreateDirectory();
@@ -77,7 +80,7 @@ function DirectoryRow({
             <span className="tree-label">{directory.name}</span>
           )}
         </button>
-        <RowMenu
+        {canEdit && <RowMenu
           items={[
             { label: 'New folder inside', onSelect: () => setCreatingChild(true) },
             { label: 'Rename', onSelect: () => setRenaming(true) },
@@ -93,7 +96,7 @@ function DirectoryRow({
               }
             }
           ]}
-        />
+        />}
       </div>
 
       <AnimatePresence initial={false}>
@@ -148,6 +151,8 @@ function DocumentRow({
   const { document } = node;
   const [renaming, setRenaming] = useState(false);
   const [moving, setMoving] = useState(false);
+  const auth = useAuth();
+  const canEdit = auth.data?.authenticated === true;
   const patchDocument = usePatchDocument();
   const deleteDocument = useDeleteDocument();
   const navigate = useNavigate();
@@ -184,7 +189,7 @@ function DocumentRow({
             ))}
           </NavLink>
         )}
-        <RowMenu
+        {canEdit && <RowMenu
           items={[
             { label: 'Rename file', onSelect: () => setRenaming(true) },
             { label: 'Move to folder', onSelect: () => setMoving(true) },
@@ -208,7 +213,7 @@ function DocumentRow({
               }
             }
           ]}
-        />
+        />}
         <span className="row-menu">
           <FolderPicker document={document} open={moving} onClose={() => setMoving(false)} />
         </span>

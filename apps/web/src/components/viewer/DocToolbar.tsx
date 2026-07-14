@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useDeleteDocument } from '../../api/queries.js';
+import { useAuth, useDeleteDocument } from '../../api/queries.js';
 import type { DocumentWithTags } from '../../api/types.js';
 import { FolderPicker } from '../move/FolderPicker.js';
 import { TagChip } from '../tags/TagChip.js';
@@ -19,6 +19,8 @@ export function DocToolbar({ document, expanded, onToggleExpanded }: DocToolbarP
   const deleteDocument = useDeleteDocument();
   const navigate = useNavigate();
   const [moving, setMoving] = useState(false);
+  const auth = useAuth();
+  const canEdit = auth.data?.authenticated === true;
 
   return (
     <header className="doc-toolbar">
@@ -28,7 +30,7 @@ export function DocToolbar({ document, expanded, onToggleExpanded }: DocToolbarP
           {document.tags.map((tag) => (
             <TagChip key={tag.id} tag={tag} />
           ))}
-          <TagPicker document={document} />
+          {canEdit && <TagPicker document={document} />}
         </span>
       </div>
       <div className="doc-toolbar-actions">
@@ -42,34 +44,38 @@ export function DocToolbar({ document, expanded, onToggleExpanded }: DocToolbarP
           <span aria-hidden="true">{expanded ? '⇥⇤' : '⇤⇥'}</span>
           {expanded ? 'Collapse' : 'Expand'}
         </button>
-        <span className="row-menu">
+        {canEdit && (
+          <span className="row-menu">
+            <button
+              type="button"
+              className="toolbar-button"
+              aria-haspopup="menu"
+              aria-expanded={moving}
+              onClick={() => setMoving((value) => !value)}
+            >
+              Move
+            </button>
+            <FolderPicker document={document} open={moving} onClose={() => setMoving(false)} />
+          </span>
+        )}
+        <ExportButtons documentId={document.id} />
+        {canEdit && (
           <button
             type="button"
-            className="toolbar-button"
-            aria-haspopup="menu"
-            aria-expanded={moving}
-            onClick={() => setMoving((value) => !value)}
-          >
-            Move
-          </button>
-          <FolderPicker document={document} open={moving} onClose={() => setMoving(false)} />
-        </span>
-        <ExportButtons documentId={document.id} />
-        <button
-          type="button"
-          className="toolbar-button danger"
-          onClick={() =>
-          {
-            if (window.confirm(`Delete "${document.filename}"?`))
+            className="toolbar-button danger"
+            onClick={() =>
             {
-              deleteDocument.mutate(document.id, {
-                onSuccess: () => void navigate('/')
-              });
-            }
-          }}
-        >
-          Delete
-        </button>
+              if (window.confirm(`Delete "${document.filename}"?`))
+              {
+                deleteDocument.mutate(document.id, {
+                  onSuccess: () => void navigate('/')
+                });
+              }
+            }}
+          >
+            Delete
+          </button>
+        )}
       </div>
     </header>
   );

@@ -56,3 +56,9 @@ export interface SyncResult
   restored: number;
   markedMissing: number;
 }
+
+export interface AuthState
+{
+  authenticated: boolean;
+  username?: string;
+}

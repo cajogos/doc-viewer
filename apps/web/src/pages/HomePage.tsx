@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { NavLink } from 'react-router';
-import { useTree } from '../api/queries.js';
+import { useAuth, useTree } from '../api/queries.js';
 import type { DocumentWithTags, TreeNode } from '../api/types.js';
 
 function flattenDocuments(nodes: TreeNode[]): DocumentWithTags[]
@@ -23,6 +23,8 @@ function flattenDocuments(nodes: TreeNode[]): DocumentWithTags[]
 export function HomePage(): React.JSX.Element
 {
   const tree = useTree();
+  const auth = useAuth();
+  const canEdit = auth.data?.authenticated === true;
   const documents = tree.data ? flattenDocuments(tree.data) : [];
   const recent = [...documents]
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
@@ -40,10 +42,17 @@ export function HomePage(): React.JSX.Element
           M<span className="drop-glyph-arrow">↓</span>
         </div>
         <h1>Your markdown, readable.</h1>
-        <p>
-          Drop <code>.md</code> files anywhere in this window. They are stored in the archive
-          folder, organised in the tree, and rendered for reading.
-        </p>
+        {canEdit ? (
+          <p>
+            Drop <code>.md</code> files anywhere in this window. They are stored in the archive
+            folder, organised in the tree, and rendered for reading.
+          </p>
+        ) : (
+          <p>
+            Pick a document from the sidebar to start reading. Sign in from the sidebar to add
+            or organise files.
+          </p>
+        )}
       </motion.div>
 
       {recent.length > 0 && (

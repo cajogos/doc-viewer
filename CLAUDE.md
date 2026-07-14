@@ -31,6 +31,8 @@ docker compose --profile dev up dev     # hot-reload container on :5173
 - The web app may only import `@doc-viewer/core/themes` (browser-safe subpath) at runtime; type-only imports from `@doc-viewer/core` are fine.
 - The archive folder mirrors the doc tree on disk and must stay safe to delete: any DB write that references a file goes through `DocStore` so disk and DB never drift.
 - Server rendering (`?include=html`) is intentional: the viewer shows exactly what exports produce.
+- Every mutating route (POST/PATCH/PUT/DELETE) must set `preHandler: app.requireAuth`; reads and exports stay public. Auth lives in core (`auth/password.ts`, `auth/bootstrap.ts`) and `apps/server/src/auth/session.ts`.
+- Never commit `password.txt`, `.env`, or anything under `data/`; the admin password is seeded via `DOC_VIEWER_ADMIN_PASSWORD`.
 
 ## Code style
 

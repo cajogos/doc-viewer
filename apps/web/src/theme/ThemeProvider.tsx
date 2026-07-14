@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useSettings, usePutSettings } from '../api/queries.js';
+import { useAuth, useSettings, usePutSettings } from '../api/queries.js';
 import type { Theme, ThemePreference } from '../api/types.js';
 
 interface ThemeContextValue
@@ -28,17 +28,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
   const settings = useSettings();
   const putSettings = usePutSettings();
 
-  // The server's settings are the source of truth once loaded; localStorage
-  // only covers the first paint.
+  // Guests keep their theme in localStorage only; the server setting is the
+  // admin's and is guarded behind authentication.
+  const auth = useAuth();
+  const authenticated = auth.data?.authenticated === true;
+
+  // For the signed-in admin the server settings are the source of truth once
+  // loaded; localStorage only covers the first paint.
   const serverTheme = settings.data?.theme;
   useEffect(() =>
   {
-    if (serverTheme && serverTheme !== storedPreference())
+    if (authenticated && serverTheme && serverTheme !== storedPreference())
     {
       setPreferenceState(serverTheme);
       localStorage.setItem('dv-theme', serverTheme);
     }
-  }, [serverTheme]);
+  }, [serverTheme, authenticated]);
 
   const [system, setSystem] = useState<Theme>(() => systemTheme());
   useEffect(() =>
@@ -62,9 +67,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     {
       setPreferenceState(next);
       localStorage.setItem('dv-theme', next);
-      putTheme({ theme: next });
+      if (authenticated)
+      {
+        putTheme({ theme: next });
+      }
     },
-    [putTheme]
+    [putTheme, authenticated]
   );
 
   const value = useMemo(

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import { useUploadDocuments } from '../../api/queries.js';
+import { useAuth, useUploadDocuments } from '../../api/queries.js';
 
 interface UploadCard
 {
@@ -23,9 +23,15 @@ export function DropOverlay(): React.JSX.Element
   const [cards, setCards] = useState<UploadCard[]>([]);
   const depth = useRef(0);
   const upload = useUploadDocuments();
+  const auth = useAuth();
+  const canEdit = auth.data?.authenticated === true;
 
   useEffect(() =>
   {
+    if (!canEdit)
+    {
+      return;
+    }
     const onDragEnter = (event: DragEvent): void =>
     {
       if (!hasFiles(event))
@@ -106,7 +112,7 @@ export function DropOverlay(): React.JSX.Element
       window.removeEventListener('dragover', onDragOver);
       window.removeEventListener('drop', onDrop);
     };
-  }, [upload]);
+  }, [upload, canEdit]);
 
   // Result cards dismiss themselves shortly after every upload settles.
   useEffect(() =>

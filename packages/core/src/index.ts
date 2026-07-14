@@ -6,7 +6,9 @@ export { THEME_CSS, THEME_TOKENS_CSS, DOC_CSS, THEMES } from './export/themes.js
 export { renderStandaloneHtml, escapeHtml, type StandaloneHtmlOptions } from './export/html-template.js';
 export { htmlToPdf, closePdfRenderer, type PdfOptions } from './export/pdf.js';
 export { openDatabase, type Database } from './db/database.js';
-export { DirectoryRepo, DocumentRepo, SettingsRepo, TagRepo } from './db/repositories.js';
+export { DirectoryRepo, DocumentRepo, SettingsRepo, TagRepo, UserRepo, type User } from './db/repositories.js';
+export { hashPassword, verifyPassword, generatePassword } from './auth/password.js';
+export { bootstrapAdmin, ADMIN_USERNAME, type BootstrapResult } from './auth/bootstrap.js';
 export { ArchiveStore } from './storage/archive.js';
 export { syncArchive, type SyncResult } from './storage/sync.js';
 export { DocStore, type DocStoreOptions } from './store.js';

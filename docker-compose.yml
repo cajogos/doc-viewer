@@ -9,6 +9,9 @@ services:
       # Set these to your `id -u` / `id -g` so archive files belong to you.
       DOC_VIEWER_UID: '${DOC_VIEWER_UID:-1000}'
       DOC_VIEWER_GID: '${DOC_VIEWER_GID:-1000}'
+      # Seeds/rotates the admin login. Leave empty to have the server generate
+      # one and write it to /app/data/password.txt inside the data volume.
+      DOC_VIEWER_ADMIN_PASSWORD: '${DOC_VIEWER_ADMIN_PASSWORD:-}'
     volumes:
       # Bind mount so dropped files are visible on the host and the folder
       # can be deleted freely; sync brings the app back in line.

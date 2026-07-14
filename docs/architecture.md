@@ -59,6 +59,14 @@ settings       key, value (JSON)
 
 Fastify 5. `buildApp({ archiveDir, dbPath, webDistDir })` is a factory used by both `index.ts` and the tests (through `app.inject`, no sockets). Errors thrown by core map to HTTP: "not found" -> 404, validation -> 400, SQLite UNIQUE -> 409. In production the server also serves the built web UI with an SPA fallback. Configuration is environment-driven: `HOST` (default 0.0.0.0), `PORT` (default 8090), `ARCHIVE_DIR`, `DATA_DIR`, `WEB_DIST`.
 
+## Authentication
+
+Single admin user, stored in the `users` table with an scrypt hash (`scrypt$cost$salt$hash`, Node's built-in `crypto.scrypt`, per-hash random salt, constant-time compare). `bootstrapAdmin` runs at server startup: it creates the user on first run (password from `DOC_VIEWER_ADMIN_PASSWORD`, or generated and written once to the data directory) and rotates the hash whenever the env password stops matching.
+
+Sessions are signed cookies (`@fastify/cookie`): an HMAC-signed `{ username, expiry }` payload valid for 30 days, `httpOnly` + `sameSite=lax`, signed with a secret persisted at `<data>/cookie-secret`. There is no server-side session store; logout clears the cookie. The cookie is not marked `secure` because the app serves plain HTTP locally; put a TLS proxy in front if you expose it beyond your machine.
+
+Authorisation is a single `requireAuth` preHandler applied to every mutating route (documents, directories, tags, settings PUT, sync, prune). GET routes and exports are public. CSRF exposure is limited by the `sameSite=lax` cookie plus JSON-only request bodies; fine for a local single-admin tool.
+
 ## Testing
 
 Vitest projects (`core`, `server` in node; `web` in jsdom). Core carries most coverage: rendering pipeline, sanitisation, archive path-traversal guards, repositories against in-memory SQLite, sync scenarios. Server tests exercise routes through `app.inject`. Web tests cover theme switching, sidebar collapse, and tag management with a stubbed fetch. The PDF path has a smoke test gated behind `PLAYWRIGHT_TESTS=1`.

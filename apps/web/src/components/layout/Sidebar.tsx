@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { NavLink } from 'react-router';
+import { useAuth, useLogout } from '../../api/queries.js';
+import { LoginDialog } from '../auth/LoginDialog.js';
 import { DocTree } from '../tree/DocTree.js';
 
 const EXPANDED_WIDTH = 280;
@@ -9,6 +11,10 @@ const COLLAPSED_WIDTH = 52;
 export function Sidebar(): React.JSX.Element
 {
   const [collapsed, setCollapsed] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
+  const auth = useAuth();
+  const logout = useLogout();
+  const authenticated = auth.data?.authenticated === true;
 
   return (
     <motion.aside
@@ -50,7 +56,29 @@ export function Sidebar(): React.JSX.Element
           <span aria-hidden="true">⚙</span>
           {!collapsed && <span>Settings</span>}
         </NavLink>
+        {authenticated ? (
+          <button
+            type="button"
+            className="sidebar-nav-link sidebar-auth-button"
+            title="Sign out"
+            onClick={() => logout.mutate()}
+          >
+            <span aria-hidden="true">⏻</span>
+            {!collapsed && <span>Sign out</span>}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="sidebar-nav-link sidebar-auth-button"
+            title="Sign in to edit"
+            onClick={() => setSigningIn(true)}
+          >
+            <span aria-hidden="true">🔑</span>
+            {!collapsed && <span>Sign in</span>}
+          </button>
+        )}
       </div>
+      <LoginDialog open={signingIn} onClose={() => setSigningIn(false)} />
     </motion.aside>
   );
 }

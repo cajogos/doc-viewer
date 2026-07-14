@@ -1,11 +1,29 @@
 import { useState } from 'react';
-import { useSync } from '../../api/queries.js';
+import { useAuth, useSync } from '../../api/queries.js';
 import { api } from '../../api/client.js';
+import { SignInPrompt } from './SignInPrompt.js';
 
 export function GeneralSection(): React.JSX.Element
 {
   const sync = useSync();
+  const auth = useAuth();
   const [pruned, setPruned] = useState<number | null>(null);
+
+  if (auth.data && !auth.data.authenticated)
+  {
+    return (
+      <section>
+        <h1 className="settings-title">General</h1>
+        <SignInPrompt what="sync the archive and prune missing entries" />
+        <div className="settings-group">
+          <h2>About</h2>
+          <p className="settings-note">
+            doc-viewer is an open source local-first markdown reader. Files stay on your machine.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section>

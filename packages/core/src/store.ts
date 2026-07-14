@@ -1,6 +1,6 @@
 import type { Database } from 'better-sqlite3';
 import { openDatabase } from './db/database.js';
-import { DirectoryRepo, DocumentRepo, SettingsRepo, TagRepo } from './db/repositories.js';
+import { DirectoryRepo, DocumentRepo, SettingsRepo, TagRepo, UserRepo } from './db/repositories.js';
 import { titleFromMarkdown } from './markdown/title.js';
 import { ArchiveStore } from './storage/archive.js';
 import type { SyncResult } from './storage/sync.js';
@@ -31,6 +31,7 @@ export class DocStore
   readonly directories: DirectoryRepo;
   readonly tags: TagRepo;
   readonly settings: SettingsRepo;
+  readonly users: UserRepo;
 
   private readonly db: Database;
 
@@ -42,6 +43,7 @@ export class DocStore
     this.directories = new DirectoryRepo(this.db);
     this.tags = new TagRepo(this.db);
     this.settings = new SettingsRepo(this.db);
+    this.users = new UserRepo(this.db);
   }
 
   close(): void

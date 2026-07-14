@@ -15,7 +15,7 @@ export function registerSettingsRoutes(app: FastifyInstance, store: DocStore): v
 
   app.put<{ Body: Partial<Settings> }>(
     '/api/settings',
-    { schema: { body: putBodySchema } },
+    { schema: { body: putBodySchema }, preHandler: app.requireAuth },
     async (request) => ({ settings: store.settings.put(request.body ?? {}) })
   );
 }

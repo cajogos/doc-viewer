@@ -1,15 +1,27 @@
 import { useState } from 'react';
-import { useCreateTag, useDeleteTag, useTags, useUpdateTag } from '../../api/queries.js';
+import { useAuth, useCreateTag, useDeleteTag, useTags, useUpdateTag } from '../../api/queries.js';
 import type { Tag } from '../../api/types.js';
+import { SignInPrompt } from './SignInPrompt.js';
 
 const DEFAULT_COLOR = '#0969da';
 
 export function TagsSection(): React.JSX.Element
 {
   const tags = useTags();
+  const auth = useAuth();
   const createTag = useCreateTag();
   const [name, setName] = useState('');
   const [color, setColor] = useState(DEFAULT_COLOR);
+
+  if (auth.data && !auth.data.authenticated)
+  {
+    return (
+      <section>
+        <h1 className="settings-title">Tags</h1>
+        <SignInPrompt what="manage tags" />
+      </section>
+    );
+  }
 
   const submit = (event: React.FormEvent): void =>
   {

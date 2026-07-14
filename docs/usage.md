@@ -1,5 +1,9 @@
 # Using doc-viewer
 
+## Signing in
+
+Anyone who can reach the app can read and export documents. Editing (adding, renaming, moving, deleting, tagging, folders, sync, settings that persist) requires signing in as the `admin` user via the button at the bottom of the sidebar. The password comes from the `DOC_VIEWER_ADMIN_PASSWORD` environment variable, or from the generated `password.txt` in the data directory on first run (see the README). Sessions last 30 days; sign out from the same place.
+
 ## Adding documents
 
 Drag one or more `.md` files anywhere onto the window. A drop overlay appears; on release each file shows an upload card in the corner. Files land in the root of the archive. Anything that is not a `.md` file is rejected with a note.

@@ -11,6 +11,7 @@ describe('TagsSection', () =>
     let tags: Array<{ id: string; name: string; color: string }> = [];
     const fetchMock = mockFetch({
       'GET /api/settings': { settings: { theme: 'system' } },
+      'GET /api/auth/me': { authenticated: true },
       'GET /api/tags': () => ({ body: { tags } }),
       'POST /api/tags': (init?: RequestInit) =>
       {
@@ -36,6 +37,7 @@ describe('TagsSection', () =>
   {
     mockFetch({
       'GET /api/settings': { settings: { theme: 'system' } },
+      'GET /api/auth/me': { authenticated: true },
       'GET /api/tags': { tags: [] },
       'POST /api/tags': () => ({
         status: 409,

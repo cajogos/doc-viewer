@@ -9,8 +9,9 @@ A local-first markdown reader with a clean web UI. Drop `.md` files anywhere in 
 - **Tags**: create coloured tags in Settings and apply them to any document
 - **Dark / light themes**: switch in Settings, follow the OS, and get identical rendering in the app and in exports
 - **Export**: convert any document to a self-contained HTML file or a PDF (rendered with Chromium), in either theme
+- **Admin editing**: reading is open to anyone who can reach the app; adding, organising, tagging, and deleting require signing in as the admin user
 - **CLI**: convert files and manage the archive without the UI
-- **Local-first**: no accounts, no cloud, one SQLite file for metadata
+- **Local-first**: no cloud, one SQLite file for metadata
 
 ## Quick start (Docker)
 
@@ -21,6 +22,10 @@ docker compose up --build
 Open http://localhost:8090. Dropped files appear in `./archive` on the host. To change the published port or make archive files belong to your user (set `DOC_VIEWER_UID`/`DOC_VIEWER_GID` to your `id -u` / `id -g`), copy `.env.example` to `.env` and adjust it.
 
 Note: the image is large (~2 GB) because it bundles Chromium for PDF export.
+
+### Admin login
+
+The viewer is read-only until you sign in as `admin` (sidebar, bottom left). Set the password by putting `DOC_VIEWER_ADMIN_PASSWORD=...` in `.env` before starting; changing it later rotates the stored credential on the next restart. If you leave it unset, the server generates a random password on first run and writes it once to `/app/data/password.txt` inside the data volume (`docker compose exec doc-viewer cat /app/data/password.txt`).
 
 ## Local development
 

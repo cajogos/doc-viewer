@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useCreateDirectory, useTree } from '../../api/queries.js';
+import { useAuth, useCreateDirectory, useTree } from '../../api/queries.js';
 import { TreeNodeRow } from './TreeNode.js';
 
 export function DocTree(): React.JSX.Element
 {
   const tree = useTree();
+  const auth = useAuth();
+  const canEdit = auth.data?.authenticated === true;
   const createDirectory = useCreateDirectory();
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
@@ -42,10 +44,12 @@ export function DocTree(): React.JSX.Element
       </ul>
 
       {tree.data!.length === 0 && !creating && (
-        <div className="tree-empty">Drop .md files anywhere to add them.</div>
+        <div className="tree-empty">
+          {canEdit ? 'Drop .md files anywhere to add them.' : 'No documents yet.'}
+        </div>
       )}
 
-      {creating ? (
+      {!canEdit ? null : creating ? (
         <input
           className="tree-inline-input"
           autoFocus

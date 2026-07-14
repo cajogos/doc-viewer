@@ -30,6 +30,7 @@ describe('moving documents into folders', () =>
   {
     const fetchMock = mockFetch({
       'GET /api/settings': { settings: { theme: 'system' } },
+      'GET /api/auth/me': { authenticated: true },
       'GET /api/tree': {
         tree: [
           { type: 'directory', directory: guides, children: [] },
@@ -58,6 +59,7 @@ describe('moving documents into folders', () =>
   {
     mockFetch({
       'GET /api/settings': { settings: { theme: 'system' } },
+      'GET /api/auth/me': { authenticated: true },
       'GET /api/tree': {
         tree: [
           {
