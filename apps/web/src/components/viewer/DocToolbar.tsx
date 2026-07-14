@@ -7,7 +7,14 @@ import { TagChip } from '../tags/TagChip.js';
 import { TagPicker } from '../tags/TagPicker.js';
 import { ExportButtons } from './ExportButtons.js';
 
-export function DocToolbar({ document }: { document: DocumentWithTags }): React.JSX.Element
+interface DocToolbarProps
+{
+  document: DocumentWithTags;
+  expanded: boolean;
+  onToggleExpanded: () => void;
+}
+
+export function DocToolbar({ document, expanded, onToggleExpanded }: DocToolbarProps): React.JSX.Element
 {
   const deleteDocument = useDeleteDocument();
   const navigate = useNavigate();
@@ -25,6 +32,16 @@ export function DocToolbar({ document }: { document: DocumentWithTags }): React.
         </span>
       </div>
       <div className="doc-toolbar-actions">
+        <button
+          type="button"
+          className="toolbar-button"
+          aria-pressed={expanded}
+          title={expanded ? 'Back to the fixed reading width' : 'Use the full window width'}
+          onClick={onToggleExpanded}
+        >
+          <span aria-hidden="true">{expanded ? '⇥⇤' : '⇤⇥'}</span>
+          {expanded ? 'Collapse' : 'Expand'}
+        </button>
         <span className="row-menu">
           <button
             type="button"

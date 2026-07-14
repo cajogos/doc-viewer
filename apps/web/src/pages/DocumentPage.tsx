@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import { useDocument } from '../api/queries.js';
 import { DocToolbar } from '../components/viewer/DocToolbar.js';
@@ -8,6 +9,16 @@ export function DocumentPage(): React.JSX.Element
 {
   const { id } = useParams<{ id: string }>();
   const query = useDocument(id);
+  const [expanded, setExpanded] = useState(() => localStorage.getItem('dv-expanded') === 'true');
+
+  const toggleExpanded = (): void =>
+  {
+    setExpanded((value) =>
+    {
+      localStorage.setItem('dv-expanded', String(!value));
+      return !value;
+    });
+  };
 
   if (query.isLoading)
   {
@@ -24,10 +35,15 @@ export function DocumentPage(): React.JSX.Element
 
   return (
     <div className="doc-page">
-      <DocToolbar document={query.data.document} />
+      <DocToolbar
+        document={query.data.document}
+        expanded={expanded}
+        onToggleExpanded={toggleExpanded}
+      />
       <motion.div
         key={id}
         className="doc-scroll"
+        data-expanded={expanded}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}

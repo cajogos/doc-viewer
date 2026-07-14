@@ -529,6 +529,14 @@ li[data-missing='true'] .tree-label
   max-width: 860px;
   margin: 0 auto;
   padding: 40px 32px 80px;
+  transition: max-width 0.2s ease;
+}
+
+/* Expand mode: use the full window width for easier reading of wide content */
+.doc-scroll[data-expanded='true'] .doc-body
+{
+  max-width: none;
+  padding: 40px 48px 80px;
 }
 
 .page-status

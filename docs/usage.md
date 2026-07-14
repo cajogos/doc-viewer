@@ -10,6 +10,8 @@ You can also copy files straight into the `archive/` folder on disk and press "S
 
 Click a document in the sidebar tree to open it. Documents render with GitHub-flavoured markdown: tables, task lists, strikethrough, and syntax-highlighted code blocks. The title shown in the tree is the document's first `# heading`, falling back to the filename.
 
+The Expand button in the toolbar widens the reading area to the full window, which helps with wide tables and code blocks. The choice is remembered across documents and sessions; Collapse returns to the fixed reading width.
+
 ## Organising
 
 - **Folders**: "+ New folder" at the bottom of the tree creates a root folder. The row menu (⋯) on a folder offers "New folder inside", "Rename", and "Delete". Folders are real directories inside `archive/`.
