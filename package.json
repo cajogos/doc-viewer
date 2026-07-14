@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "docker:restart": "scripts/dev-restart.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
