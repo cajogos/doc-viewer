@@ -1,0 +1,24 @@
+{
+  "name": "@doc-viewer/cli",
+  "version": "0.1.0",
+  "description": "Command-line interface for doc-viewer conversions and archive management",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "doc-viewer": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@doc-viewer/core": "workspace:*",
+    "commander": "^15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}
