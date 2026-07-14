@@ -367,6 +367,41 @@ li[data-missing='true'] .tree-label
 .row-menu-item:hover { background-color: var(--dv-bg-hover); }
 .row-menu-item.danger { color: var(--dv-danger); }
 
+.row-menu-item:disabled
+{
+  opacity: 0.5;
+  cursor: default;
+}
+
+.row-menu-item:disabled:hover { background-color: transparent; }
+
+/* Folder picker (move to folder) */
+
+.folder-picker
+{
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.folder-picker-title
+{
+  padding: 4px 10px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dv-fg-muted);
+}
+
+.folder-picker-icon
+{
+  display: inline-block;
+  width: 14px;
+  margin-right: 4px;
+  color: var(--dv-fg-muted);
+}
+
 /* Tags ----------------------------------------------------------------- */
 
 .tag-chip

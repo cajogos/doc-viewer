@@ -9,6 +9,7 @@ import {
   usePatchDocument
 } from '../../api/queries.js';
 import type { TreeNode } from '../../api/types.js';
+import { FolderPicker } from '../move/FolderPicker.js';
 import { TagChip } from '../tags/TagChip.js';
 
 interface TreeNodeRowProps
@@ -146,6 +147,7 @@ function DocumentRow({
 {
   const { document } = node;
   const [renaming, setRenaming] = useState(false);
+  const [moving, setMoving] = useState(false);
   const patchDocument = usePatchDocument();
   const deleteDocument = useDeleteDocument();
   const navigate = useNavigate();
@@ -185,6 +187,7 @@ function DocumentRow({
         <RowMenu
           items={[
             { label: 'Rename file', onSelect: () => setRenaming(true) },
+            { label: 'Move to folder', onSelect: () => setMoving(true) },
             {
               label: 'Delete',
               danger: true,
@@ -206,6 +209,9 @@ function DocumentRow({
             }
           ]}
         />
+        <span className="row-menu">
+          <FolderPicker document={document} open={moving} onClose={() => setMoving(false)} />
+        </span>
       </div>
     </li>
   );
