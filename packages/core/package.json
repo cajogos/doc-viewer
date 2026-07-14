@@ -1,0 +1,43 @@
+{
+  "name": "@doc-viewer/core",
+  "version": "0.1.0",
+  "description": "Markdown rendering, conversion, and storage engine for doc-viewer",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./themes": {
+      "types": "./dist/export/themes.d.ts",
+      "default": "./dist/export/themes.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc --watch --preserveWatchOutput",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shikijs/rehype": "^4.3.1",
+    "better-sqlite3": "^12.11.1",
+    "playwright": "1.61.1",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "shiki": "^4.3.1",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^26.1.1",
+    "hast-util-sanitize": "^5.0.2"
+  }
+}
