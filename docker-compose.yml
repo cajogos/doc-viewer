@@ -1,0 +1,34 @@
+services:
+  doc-viewer:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - '${DOC_VIEWER_PORT:-8090}:8090'
+    volumes:
+      # Bind mount so dropped files are visible on the host and the folder
+      # can be deleted freely; sync brings the app back in line.
+      - ./archive:/app/archive
+      - doc-viewer-data:/app/data
+    restart: unless-stopped
+
+  # Hot-reload development: docker compose --profile dev up dev
+  # UI on http://localhost:5173 (the API is proxied through Vite).
+  dev:
+    profiles: [dev]
+    build:
+      context: .
+      target: dev
+    ports:
+      - '5173:5173'
+    volumes:
+      - .:/app
+      # Keep container-built node_modules separate from the host's.
+      - /app/node_modules
+      - /app/packages/core/node_modules
+      - /app/packages/cli/node_modules
+      - /app/apps/server/node_modules
+      - /app/apps/web/node_modules
+
+volumes:
+  doc-viewer-data:
