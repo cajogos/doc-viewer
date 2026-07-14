@@ -1,11 +1,12 @@
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
-import { DocStore } from '@doc-viewer/core';
+import { closePdfRenderer, DocStore } from '@doc-viewer/core';
 import type { FastifyError, FastifyInstance } from 'fastify';
 import Fastify from 'fastify';
 import { existsSync } from 'node:fs';
 import { registerDirectoryRoutes } from './routes/directories.js';
 import { registerDocumentRoutes } from './routes/documents.js';
+import { registerExportRoutes } from './routes/exports.js';
 import { registerSettingsRoutes } from './routes/settings.js';
 import { registerTagRoutes } from './routes/tags.js';
 import { registerTreeRoutes } from './routes/tree.js';
@@ -27,6 +28,7 @@ export function buildApp(options: AppOptions): FastifyInstance
   app.decorate('store', store);
   app.addHook('onClose', async () =>
   {
+    await closePdfRenderer();
     store.close();
   });
 
@@ -64,6 +66,7 @@ export function buildApp(options: AppOptions): FastifyInstance
 
   registerTreeRoutes(app, store);
   registerDocumentRoutes(app, store);
+  registerExportRoutes(app, store);
   registerDirectoryRoutes(app, store);
   registerTagRoutes(app, store);
   registerSettingsRoutes(app, store);

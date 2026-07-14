@@ -201,6 +201,31 @@ describe('server API', () =>
     expect((get.json() as { settings: { theme: string } }).settings.theme).toBe('dark');
   });
 
+  it('exports a document as standalone themed HTML', async () =>
+  {
+    const { documents } = await upload('export-me.md', '# Exported\n\ncontent');
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/documents/${documents[0].id}/export?format=html&theme=dark`
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toContain('text/html');
+    expect(response.headers['content-disposition']).toContain('export-me.html');
+    expect(response.body).toContain('data-theme="dark"');
+    expect(response.body).toContain('--dv-bg');
+    expect(response.body).toContain('<h1>Exported</h1>');
+  });
+
+  it('rejects unknown export formats', async () =>
+  {
+    const { documents } = await upload('fmt.md', 'x');
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/documents/${documents[0].id}/export?format=docx`
+    });
+    expect(response.statusCode).toBe(400);
+  });
+
   it('indexes files dropped directly into the archive via sync', async () =>
   {
     writeFileSync(join(root, 'archive', 'external.md'), '# External');
