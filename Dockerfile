@@ -33,5 +33,10 @@ ENV NODE_ENV=production \
   WEB_DIST=/app/web-dist
 COPY --from=build /out /app
 COPY --from=build /app/apps/web/dist /app/web-dist
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 EXPOSE 8090
+# The entrypoint chowns the mounted archive/data dirs to DOC_VIEWER_UID:GID
+# (default 1000:1000) and drops root, so archive files belong to the host user.
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", "dist/index.js"]

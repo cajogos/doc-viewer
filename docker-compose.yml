@@ -5,6 +5,10 @@ services:
       target: runtime
     ports:
       - '${DOC_VIEWER_PORT:-8090}:8090'
+    environment:
+      # Set these to your `id -u` / `id -g` so archive files belong to you.
+      DOC_VIEWER_UID: '${DOC_VIEWER_UID:-1000}'
+      DOC_VIEWER_GID: '${DOC_VIEWER_GID:-1000}'
     volumes:
       # Bind mount so dropped files are visible on the host and the folder
       # can be deleted freely; sync brings the app back in line.
