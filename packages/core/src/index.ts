@@ -1,1 +1,5 @@
-export const CORE_VERSION = '0.1.0';
+export * from './types.js';
+export { renderMarkdown, type RenderResult } from './markdown/render.js';
+export { sanitizeSchema } from './markdown/sanitize-schema.js';
+export { THEME_CSS, THEME_TOKENS_CSS, DOC_CSS, THEMES } from './export/themes.js';
+export { renderStandaloneHtml, escapeHtml, type StandaloneHtmlOptions } from './export/html-template.js';
