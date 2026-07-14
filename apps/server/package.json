@@ -6,7 +6,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "ARCHIVE_DIR=../../archive DATA_DIR=../../data tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
+    "form-data": "^4.0.6",
     "tsx": "^4.23.1"
   }
 }
